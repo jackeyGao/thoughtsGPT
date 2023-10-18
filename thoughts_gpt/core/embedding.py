@@ -6,6 +6,7 @@ from langchain.embeddings.base import Embeddings
 from typing import List, Type
 from langchain.docstore.document import Document
 from thoughts_gpt.core.debug import FakeVectorStore, FakeEmbeddings
+from thoughts_gpt.core.const import embedding_max_retries
 
 
 class FolderIndex:
@@ -61,6 +62,7 @@ def embed_files(
 
     if embedding in supported_embeddings:
         _embeddings = supported_embeddings[embedding](**kwargs)
+        _embeddings.max_retries = embedding_max_retries
     else:
         raise NotImplementedError(f"Embedding {embedding} not supported.")
 

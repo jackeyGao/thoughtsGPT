@@ -19,6 +19,7 @@ def query_folder(
     query: str,
     folder_index: FolderIndex,
     llm: BaseChatModel,
+    k: int = 5,
     stuff_prompt: PromptTemplate=STUFF_PROMPT,
 ) -> AnswerWithSources:
     """Queries a folder index for an answer.
@@ -41,7 +42,7 @@ def query_folder(
         prompt=stuff_prompt,
     )
 
-    relevant_docs = folder_index.index.similarity_search(query, k=5)
+    relevant_docs = folder_index.index.similarity_search(query, k=k)
     result = chain(
         {"input_documents": relevant_docs, "question": query}, return_only_outputs=True
     )

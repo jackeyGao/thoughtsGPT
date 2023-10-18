@@ -29,6 +29,16 @@ def sidebar():
 
         st.session_state["OPENAI_API_KEY"] = api_key_input
 
+        similar_docs_limit = st.number_input(
+            "Similar docs limit",
+            value=5,
+            min_value=1,
+            max_value=12,
+            help="similar docs limit",  # noqa: E501
+        )
+
+        st.session_state["SIMILAR_DOCS_LIMIT"] = similar_docs_limit
+
         stuff_prompt = st.text_area(
             "Stuff Prompt",
             placeholder="stuff prompt",

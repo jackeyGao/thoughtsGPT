@@ -43,6 +43,7 @@ sidebar()
 openai_api_key = st.session_state.get("OPENAI_API_KEY")
 stuff_prompt = st.session_state.get("STUFF_PROMPT")
 show_full_doc = st.session_state.get("SHOW_FULL_DOC", False)
+similar_docs_limit = st.session_state.get("SIMILAR_DOCS_LIMIT", 5)
 
 
 if not openai_api_key:
@@ -138,6 +139,7 @@ if submit:
         folder_index=folder_index,
         query=query,
         llm=llm,
+        k=similar_docs_limit,
         stuff_prompt=prompt
     )
  
