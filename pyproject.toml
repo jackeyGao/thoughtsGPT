@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "thoughts_gpt"
+name = "thoughts-gpt"
 version = "0.0.5"
 description = "Accurate answers and instant citations for your documents"
 authors = ["JG <gaojunqi@outlook.com>"]
@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "thoughts_gpt"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 streamlit = "^1.24.0"
 langchain = "^0.0.220"
 cohere = "^3.2.1"
