@@ -2,7 +2,7 @@
 name = "thoughts_gpt"
 version = "0.0.5"
 description = "Accurate answers and instant citations for your documents"
-authors = ["gaojunqi@outlook.com"]
+authors = ["JG <gaojunqi@outlook.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "thoughts_gpt"}]
