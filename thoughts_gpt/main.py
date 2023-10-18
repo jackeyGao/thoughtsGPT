@@ -151,12 +151,15 @@ if submit:
     with sources_col:
         st.markdown("#### 📄  Context")
         
-        source_tabs = st.tabs([ s.metadata["source"] for s in result.sources ])
+        source_tabs = st.tabs([ s.metadata["source"] for s in result.sources ] + ["🐦 Prompt"])
 
-        for source, tab in zip(result.sources, source_tabs):
+        for source, tab in zip(result.sources, source_tabs[0:-1]):
             with tab:
                 st.info(source.page_content)
                 # st.markdown(source.page_content)
                 # st.markdown({source.metadata["source"]})
                 # st.markdown("---")
+
+        with source_tabs[-1]:
+            st.code(stuff_prompt, language="python")
  
