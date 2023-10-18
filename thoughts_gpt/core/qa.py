@@ -102,6 +102,9 @@ def get_suggested_questions(answer: str) -> List[str]:
 
     maybe_questions = []
     for prefix in prefix_list:
+        if prefix not in answer:
+            continue
+
         for line in answer.split(prefix)[1].split('\n'):
             if line.startswith('- '):
                 maybe_questions.append(line.replace('- ', ''))

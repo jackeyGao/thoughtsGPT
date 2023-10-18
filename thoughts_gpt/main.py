@@ -146,10 +146,13 @@ if submit:
         st.success(result.answer)
 
         st.markdown("##### 💡 Suggested Questions")
-        st.info('- ' + '\n- '.join(result.suggested_questions))
+        if result.suggested_questions:
+            st.info('- ' + '\n- '.join(result.suggested_questions))
+        else:
+            st.warning("No suggested questions")
  
     with sources_col:
-        st.markdown("#### 📄  Context")
+        st.markdown("#### 🍞 Context")
         
         source_tabs = st.tabs([ s.metadata["source"] for s in result.sources ] + ["🐦 Prompt"])
 
