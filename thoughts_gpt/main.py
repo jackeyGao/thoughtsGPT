@@ -52,7 +52,6 @@ if not openai_api_key:
         " https://platform.openai.com/account/api-keys."
     )
 
-
 tab_file, tab_url = st.tabs(["📃 File", "🕸️ URL"])
 
 # chosen_id = stx.tab_bar(data=[
@@ -160,7 +159,7 @@ if submit:
 
         for source, tab in zip(result.sources, source_tabs[0:-1]):
             with tab:
-                st.info(source.page_content)
+                st.code(source.page_content)
                 # st.markdown(source.page_content)
                 # st.markdown({source.metadata["source"]})
                 # st.markdown("---")
