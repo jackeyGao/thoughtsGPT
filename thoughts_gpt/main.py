@@ -135,7 +135,7 @@ if show_full_doc:
  
  
 if submit:
-    with st.spinner(f'LLM ({model})is answering, it may take a while. ⏳'):
+    with st.spinner(f'LLM({model}) is answering, it may take a while. ⏳'):
         if not is_query_valid(query):
             st.stop()
     
