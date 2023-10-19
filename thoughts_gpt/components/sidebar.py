@@ -44,6 +44,7 @@ def sidebar():
             show_full_doc = st.checkbox('Show parsed contents of the document')
             temperature = st.number_input(
                 label="LLM Temperature",
+                value=0.1,
                 step=0.1, 
                 format="%.1f", 
                 min_value=0., 
