@@ -76,10 +76,10 @@ def query_folder(
         if source.metadata["source"] in _source_map:
             source.metadata["source"] = f"🔥 {source.metadata['source']}"
 
-    answer = result["output_text"].split("SOURCES: ")[0]
+    # answer = result["output_text"].split("SOURCES: ")[0]
 
-    suggested_questions = get_suggested_questions(answer)
-    answer = answer.split(f"{SUGGESTED_QUESTION_PREFIX}:")[0]
+    suggested_questions = get_suggested_questions(result["output_text"])
+    answer = result["output_text"].split(f"{SUGGESTED_QUESTION_PREFIX}:")[0]
 
     return AnswerWithSources(
         answer=answer, 
@@ -132,7 +132,9 @@ def get_suggested_questions(answer: str) -> List[str]:
         for line in answer.split(prefix)[1].split('\n'):
             if line.startswith('- '):
                 maybe_questions.append(line.replace('- ', ''))
+            else:
+                maybe_questions.append(line)
 
-    return maybe_questions
+    return [ q.strip() for q in maybe_questions if q ]
         
 
