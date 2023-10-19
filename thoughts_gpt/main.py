@@ -208,6 +208,6 @@ if submit:
             )
             st.code(prompt_content, language="python")
         
-        with source_tabs[-2]:
+        with source_tabs[-1]:
             st.code(result.original_anwser, language="python")
  
