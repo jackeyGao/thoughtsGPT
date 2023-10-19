@@ -3,9 +3,12 @@ from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from thoughts_gpt.core.prompts import STUFF_PROMPT
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
-from thoughts_gpt.core.embedding import FolderIndex
 from pydantic import BaseModel
 from langchain.chat_models.base import BaseChatModel
+from thoughts_gpt.core.embedding import FolderIndex
+from thoughts_gpt.core.prompts import DOCUMENT_PROMPT
+from thoughts_gpt.core.const import SUGGESTED_QUESTION_PREFIX
+from thoughts_gpt.core.const import DOCUMENT_SUMMARIES_SOURCE
 
 
 class AnswerWithSources(BaseModel):
@@ -13,6 +16,8 @@ class AnswerWithSources(BaseModel):
     sources: List[Document]
     match_sources: List[Document]
     suggested_questions: List[str]
+    summaries: str
+    prompt_length: int
 
 
 def query_folder(
@@ -40,12 +45,19 @@ def query_folder(
         llm=llm,
         chain_type="stuff",
         prompt=stuff_prompt,
+        document_prompt=DOCUMENT_PROMPT
     )
 
     relevant_docs = folder_index.index.similarity_search(query, k=k)
+
+
+    summaries = chain._get_inputs(relevant_docs)
+    prompt_length = chain.prompt_length(relevant_docs, question=query)
+
     result = chain(
         {"input_documents": relevant_docs, "question": query}, return_only_outputs=True
     )
+
     sources = relevant_docs
 
     match_sources = get_sources(result["output_text"], folder_index)
@@ -59,17 +71,19 @@ def query_folder(
     answer = result["output_text"].split("SOURCES: ")[0]
 
     suggested_questions = get_suggested_questions(answer)
-    answer = answer.split("联想问题:")[0]
+    answer = answer.split(f"{SUGGESTED_QUESTION_PREFIX}:")[0]
 
     return AnswerWithSources(
         answer=answer, 
         sources=sources, 
         match_sources=match_sources, 
-        suggested_questions=suggested_questions
+        suggested_questions=suggested_questions,
+        summaries=summaries["summaries"],
+        prompt_length=prompt_length
     )
 
 def get_sources_key(line: str) -> List[str]:
-    prefix_list = ["来源: ", "SOURCE: "]
+    prefix_list = [f"{DOCUMENT_SUMMARIES_SOURCE}: "]
     keys = []
     for prefix in prefix_list:
         if not line.startswith(prefix):
@@ -99,7 +113,7 @@ def get_sources(answer: str, folder_index: FolderIndex) -> List[Document]:
 
 
 def get_suggested_questions(answer: str) -> List[str]:
-    prefix_list = ["联想问题:"]
+    prefix_list = [f"{SUGGESTED_QUESTION_PREFIX}:"]
 
     maybe_questions = []
     for prefix in prefix_list:

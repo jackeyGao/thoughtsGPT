@@ -1,10 +1,15 @@
 from typing import List
+from hashlib import sha1
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.docstore.document import Document
 
 from langchain.chat_models import ChatOpenAI
 from thoughts_gpt.core.debug import FakeChatModel
 from langchain.chat_models.base import BaseChatModel
+
+
+def hash_id(input: str) -> str:
+    return sha1(input.encode()).hexdigest()
 
 
 def pop_docs_upto_limit(

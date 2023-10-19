@@ -84,4 +84,6 @@ yarl==1.9.2 ; python_version >= "3.10" and python_version < "4.0"
 zipp==3.16.2 ; python_version >= "3.10" and python_version < "4.0"
 unstructured==0.10.23 ; python_version >= "3.10" and python_version < "4.0"
 langchainhub==0.1.13 ; python_version >= "3.10" and python_version < "4.0"
+chromadb==0.4.14 ; python_version >= "3.10" and python_version < "4.0"
+pysqlite3-binary==0.5.2.post1 ; python_version >= "3.10" and python_version < "4.0"
 -e ./

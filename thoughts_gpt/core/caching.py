@@ -5,6 +5,7 @@ import thoughts_gpt.core.parsing as parsing
 import thoughts_gpt.core.chunking as chunking
 import thoughts_gpt.core.embedding as embedding
 from thoughts_gpt.core.parsing import File
+from thoughts_gpt.core.const import VECTOR_STORE
 
 
 def file_hash_func(file: File) -> str:
@@ -24,10 +25,11 @@ def bootstrap_caching():
     ]
     file_hash_funcs: HashFuncsDict = {cls: file_hash_func for cls in file_subtypes}
 
-    parsing.read_file = st.cache_data(show_spinner=False)(parsing.read_file)
-    chunking.chunk_file = st.cache_data(show_spinner=False, hash_funcs=file_hash_funcs)(
+    parsing.read_file = st.cache_data(show_spinner=False, persist='disk')(parsing.read_file)
+    chunking.chunk_file = st.cache_data(show_spinner=False, hash_funcs=file_hash_funcs, persist='disk')(
         chunking.chunk_file
     )
-    embedding.embed_files = st.cache_data(
-        show_spinner=False, hash_funcs=file_hash_funcs
-    )(embedding.embed_files)
+    if VECTOR_STORE != 'chroma':
+        embedding.embed_files = st.cache_data(
+            show_spinner=False, hash_funcs=file_hash_funcs, persist='disk'
+        )(embedding.embed_files)

@@ -22,11 +22,8 @@ from thoughts_gpt.core.embedding import embed_files
 from thoughts_gpt.core.qa import query_folder
 from thoughts_gpt.core.utils import get_llm
 from thoughts_gpt.core.prompts import get_prompt
+from thoughts_gpt.core.const import EMBEDDING, VECTOR_STORE, MODEL_LIST
 
-
-EMBEDDING = "openai"
-VECTOR_STORE = "faiss"
-MODEL_LIST = ["gpt-3.5-turbo", "gpt-4"]
 
 # Uncomment to enable debug mode
 # MODEL_LIST.insert(0, "debug")
@@ -112,8 +109,10 @@ with st.spinner("Indexing document... This may take a while⏳"):
         embedding=EMBEDDING if model != "debug" else "debug",
         vector_store=VECTOR_STORE if model != "debug" else "debug",
         openai_api_key=openai_api_key,
+        collection_name=file.id,
     )
- 
+
+
 with st.form(key="qa_form"):
     query = st.text_area("Ask a question about the document")
     submit = st.form_submit_button("Submit")
@@ -141,7 +140,7 @@ if submit:
         k=similar_docs_limit,
         stuff_prompt=prompt
     )
- 
+
     with answer_col:
         st.markdown("#### ✨ Answer")
         st.success(result.answer)
@@ -159,11 +158,28 @@ if submit:
 
         for source, tab in zip(result.sources, source_tabs[0:-1]):
             with tab:
+                
+                # col1, col2, col3, col4 = st.columns(4)
+                # col1.info(f"Source: {source.metadata['source']}")
+                # col2.info(f"FileName: {source.metadata['file_name']}")
+                # col3.info(f"Page: {source.metadata['page']}")
+                # col4.info(f"#_id: {source.metadata['_id'][-8:]}")
+                # col2.metric("Wind", "9 mph", "-8%")
+                # col3.metric("Humidity", "86%", "4%")
+
                 st.code(source.page_content)
+                st.caption(
+                    f":blue[source]: {source.metadata['source']}, " + 
+                    f":blue[filename]: {source.metadata['file_name']}, " + 
+                    f":blue[page]: {source.metadata['page']}, " + 
+                    f":blue[_id]: {source.metadata['_id']}"
+                )
                 # st.markdown(source.page_content)
                 # st.markdown({source.metadata["source"]})
                 # st.markdown("---")
 
         with source_tabs[-1]:
-            st.code(stuff_prompt, language="python")
+            st.caption(f":blue[Token]: {result.prompt_length}")
+            prompt_content = prompt.format(question=query, summaries=result.summaries)
+            st.code(prompt_content, language="python")
  
