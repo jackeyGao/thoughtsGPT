@@ -37,11 +37,21 @@ bootstrap_caching()
 
 sidebar()
 
+st.markdown("""
+<style>
+.st-ct code.language-python {
+    word-break: break-all;
+    overflow: hidden;
+    overflow-x: hidden;
+    white-space: pre-wrap!important;
+    word-wrap: break-word;
+}
+</style>""", unsafe_allow_html=True)
+
 openai_api_key = st.session_state.get("OPENAI_API_KEY")
 stuff_prompt = st.session_state.get("STUFF_PROMPT")
 show_full_doc = st.session_state.get("SHOW_FULL_DOC", False)
 similar_docs_limit = st.session_state.get("SIMILAR_DOCS_LIMIT", 5)
-
 
 if not openai_api_key:
     st.warning(
@@ -167,7 +177,7 @@ if submit:
                 # col2.metric("Wind", "9 mph", "-8%")
                 # col3.metric("Humidity", "86%", "4%")
 
-                st.code(source.page_content)
+                st.code(source.page_content, line_numbers=True)
                 st.caption(
                     f":blue[source]: {source.metadata['source']}, " + 
                     f":blue[filename]: {source.metadata['file_name']}, " + 
