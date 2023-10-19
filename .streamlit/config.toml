@@ -3,3 +3,7 @@ maxUploadSize = 25
 
 [browser]
 gatherUsageStats = false
+
+[theme]
+base="light"
+font="monospace"
