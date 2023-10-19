@@ -53,8 +53,12 @@ def sidebar():
 
         with st.expander("Advanced Options"):
             show_full_doc = st.checkbox('Show parsed contents of the document')
+            temperature = st.number_input(
+                label="LLM temperature",step=0.1, format="%.2f", min_value=0., max_value=2.
+            )
 
         st.session_state["SHOW_FULL_DOC"] = show_full_doc
+        st.session_state["TEMPERRATURE"] = temperature
 
         st.markdown(
             "## Prompt examples\n"

@@ -52,6 +52,7 @@ openai_api_key = st.session_state.get("OPENAI_API_KEY")
 stuff_prompt = st.session_state.get("STUFF_PROMPT")
 show_full_doc = st.session_state.get("SHOW_FULL_DOC", False)
 similar_docs_limit = st.session_state.get("SIMILAR_DOCS_LIMIT", 5)
+temperature = st.session_state.get("TEMPERRATURE", 0)
 
 if not openai_api_key:
     st.warning(
@@ -142,7 +143,12 @@ if submit:
         # Output Columns
         answer_col, sources_col = st.columns(2)
     
-        llm = get_llm(model=model, openai_api_key=openai_api_key, temperature=0)
+        llm = get_llm(
+            model=model, 
+            openai_api_key=openai_api_key, 
+            temperature=temperature
+        )
+        
         prompt = get_prompt(stuff_prompt)
         result = query_folder(
             folder_index=folder_index,
