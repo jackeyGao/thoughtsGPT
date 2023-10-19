@@ -3,6 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from thoughts_gpt.core.prompts import default_template
 from thoughts_gpt.components.prompt_example import example
+from thoughts_gpt import __version__
 
 import os
 
@@ -62,6 +63,8 @@ def sidebar():
         )
 
         example()
+
+        st.caption(f":blue[version]: {__version__}")
 
 
     # Initialize a session state variable that tracks the sidebar state (either 'expanded' or 'collapsed').
