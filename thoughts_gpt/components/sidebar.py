@@ -45,7 +45,7 @@ def sidebar():
             temperature = st.number_input(
                 label="LLM Temperature",
                 step=0.1, 
-                format="%.2f", 
+                format="%.1f", 
                 min_value=0., 
                 max_value=2.
             )
