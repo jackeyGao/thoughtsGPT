@@ -18,6 +18,7 @@ class AnswerWithSources(BaseModel):
     suggested_questions: List[str]
     summaries: str
     prompt_length: int
+    original_anwser: str
 
 
 def query_folder(
@@ -26,6 +27,7 @@ def query_folder(
     llm: BaseChatModel,
     k: int = 5,
     stuff_prompt: PromptTemplate=STUFF_PROMPT,
+    suggested_questions_limit: int = 5,
 ) -> AnswerWithSources:
     """Queries a folder index for an answer.
 
@@ -50,12 +52,18 @@ def query_folder(
 
     relevant_docs = folder_index.index.similarity_search(query, k=k)
 
-
     summaries = chain._get_inputs(relevant_docs)
-    prompt_length = chain.prompt_length(relevant_docs, question=query)
+    prompt_length = chain.prompt_length(
+        relevant_docs, question=query, 
+        suggested_questions_limit=suggested_questions_limit
+    )
 
     result = chain(
-        {"input_documents": relevant_docs, "question": query}, return_only_outputs=True
+        {
+            "input_documents": relevant_docs, 
+            "question": query,
+            "suggested_questions_limit": suggested_questions_limit,
+        }, return_only_outputs=True
     )
 
     sources = relevant_docs
@@ -79,7 +87,8 @@ def query_folder(
         match_sources=match_sources, 
         suggested_questions=suggested_questions,
         summaries=summaries["summaries"],
-        prompt_length=prompt_length
+        prompt_length=prompt_length,
+        original_anwser=result["output_text"],
     )
 
 def get_sources_key(line: str) -> List[str]:

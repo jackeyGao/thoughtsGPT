@@ -7,7 +7,7 @@ from thoughts_gpt.core.const import DOCUMENT_SUMMARIES_SOURCE
 ## Use a shorter template to reduce the number of tokens in the prompt
 # https://smith.langchain.com/hub/rlm/rag-prompt
 
-default_template = """使用提供的文档摘录（排名不分先后）作为来源，创建最终答案并推理出三个联想问题。始终根据文档的摘录推理三个联想问题。始终在您的答案中包含“来源”部分，仅引用回答问题所需的最少来源。如果您无法回答问题，只需说明您没有足够的信息来回答问题，并将“来源”部分留空。仅使用提供的文件，不要试图编造答案。你应该始终分析并推理出答案背后的三个相关的联想问题问题。始终在您的答案中包含“联想问题”部分
+default_template = """使用提供的文档摘录（排名不分先后）作为来源，创建最终答案并推理出{suggested_questions_limit}个联想问题。始终根据文档的摘录推理个{suggested_questions_limit}联想问题。始终在您的答案中包含“来源”部分，仅引用回答问题所需的最少来源。如果您无法回答问题，只需说明您没有足够的信息来回答问题，并将“来源”部分留空。仅使用提供的文件，不要试图编造答案。你应该始终分析并推理出答案背后的{suggested_questions_limit}个相关的联想问题问题。始终在您的答案中包含“联想问题”部分
 
 ---------
 问题: “一带一路”是什么?
@@ -48,11 +48,13 @@ ENGLISH_DOCUMENT_PROMPT = PromptTemplate(
 )
 
 STUFF_PROMPT = PromptTemplate(
-    template=default_template, input_variables=["summaries", "question"]
+    template=default_template, 
+    input_variables=["summaries", "question", "suggested_questions_limit"]
 )
 
 
 def get_prompt(template: str=default_template) -> PromptTemplate:
     return PromptTemplate(
-        template=template, input_variables=["summaries", "question"]
+        template=template, 
+        input_variables=["summaries", "question", "suggested_questions_limit"]
     )

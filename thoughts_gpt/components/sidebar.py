@@ -30,16 +30,6 @@ def sidebar():
 
         st.session_state["OPENAI_API_KEY"] = api_key_input
 
-        similar_docs_limit = st.number_input(
-            "Similar docs limit",
-            value=5,
-            min_value=1,
-            max_value=12,
-            help="similar docs limit",  # noqa: E501
-        )
-
-        st.session_state["SIMILAR_DOCS_LIMIT"] = similar_docs_limit
-
         stuff_prompt = st.text_area(
             "Stuff Prompt",
             placeholder="stuff prompt",
@@ -50,15 +40,36 @@ def sidebar():
 
         st.session_state["STUFF_PROMPT"] = stuff_prompt
 
-
         with st.expander("Advanced Options"):
             show_full_doc = st.checkbox('Show parsed contents of the document')
             temperature = st.number_input(
-                label="LLM temperature",step=0.1, format="%.2f", min_value=0., max_value=2.
+                label="LLM Temperature",
+                step=0.1, 
+                format="%.2f", 
+                min_value=0., 
+                max_value=2.
             )
+            suggested_questions_limit = st.number_input(
+                "Suggested Questions Limit", 
+                max_value=10, 
+                min_value=3, 
+                value=5,
+                help="suggested questions limit",  
+            )
+            similar_docs_limit = st.number_input(
+                "Similar Documents Limit",
+                value=5,
+                min_value=1,
+                max_value=12,
+                help="similar docs limit",  # noqa: E501
+            )
+
 
         st.session_state["SHOW_FULL_DOC"] = show_full_doc
         st.session_state["TEMPERRATURE"] = temperature
+        st.session_state["SUGGESTED_QUESTIONS_LIMIT"] = suggested_questions_limit
+        st.session_state["SIMILAR_DOCS_LIMIT"] = similar_docs_limit
+
 
         st.markdown(
             "## Prompt examples\n"

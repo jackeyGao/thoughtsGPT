@@ -23,13 +23,14 @@ from thoughts_gpt.core.qa import query_folder
 from thoughts_gpt.core.utils import get_llm
 from thoughts_gpt.core.prompts import get_prompt
 from thoughts_gpt.core.const import EMBEDDING, VECTOR_STORE, MODEL_LIST
+from thoughts_gpt.core.const import PAGE_ICON, PAGE_TITLE
 
 
 # Uncomment to enable debug mode
 # MODEL_LIST.insert(0, "debug")
 
-st.set_page_config(page_title="GPT有所思", page_icon="📖", layout="wide")
-st.header("🤔 GPT有所思")
+st.set_page_config(page_title=PAGE_TITLE, page_icon=PAGE_ICON, layout="wide")
+st.header(f"{PAGE_ICON} {PAGE_TITLE}")
 
 
 # Enable caching for expensive functions
@@ -53,6 +54,8 @@ stuff_prompt = st.session_state.get("STUFF_PROMPT")
 show_full_doc = st.session_state.get("SHOW_FULL_DOC", False)
 similar_docs_limit = st.session_state.get("SIMILAR_DOCS_LIMIT", 5)
 temperature = st.session_state.get("TEMPERRATURE", 0)
+suggested_questions_limit = st.session_state.get("SUGGESTED_QUESTIONS_LIMIT", 5)
+
 
 if not openai_api_key:
     st.warning(
@@ -155,7 +158,8 @@ if submit:
             query=query,
             llm=llm,
             k=similar_docs_limit,
-            stuff_prompt=prompt
+            stuff_prompt=prompt,
+            suggested_questions_limit=suggested_questions_limit
         )
 
     with answer_col:
@@ -171,9 +175,9 @@ if submit:
     with sources_col:
         st.markdown("#### 🍞 Context")
         
-        source_tabs = st.tabs([ s.metadata["source"] for s in result.sources ] + ["🐦 Prompt"])
+        source_tabs = st.tabs([ s.metadata["source"] for s in result.sources ] + ["🥔 Prompt", "🍟 Original"])
 
-        for source, tab in zip(result.sources, source_tabs[0:-1]):
+        for source, tab in zip(result.sources, source_tabs[0:-2]):
             with tab:
                 
                 # col1, col2, col3, col4 = st.columns(4)
@@ -195,8 +199,15 @@ if submit:
                 # st.markdown({source.metadata["source"]})
                 # st.markdown("---")
 
-        with source_tabs[-1]:
+        with source_tabs[-2]:
             st.caption(f":blue[Token]: {result.prompt_length}")
-            prompt_content = prompt.format(question=query, summaries=result.summaries)
+            prompt_content = prompt.format(
+                question=query, 
+                suggested_questions_limit=suggested_questions_limit,
+                summaries=result.summaries
+            )
             st.code(prompt_content, language="python")
+        
+        with source_tabs[-2]:
+            st.code(result.original_anwser, language="python")
  

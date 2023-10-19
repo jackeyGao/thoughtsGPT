@@ -1,6 +1,9 @@
 
 EMBEDDING_MAX_RETRIES = 10
 
+PAGE_ICON = "🍔"
+PAGE_TITLE = "thoughtsGPT"
+
 EMBEDDING = "openai"
 VECTOR_STORE = "chroma" # debug/faiss/chroma
 MODEL_LIST = ["gpt-3.5-turbo", "gpt-4"]
