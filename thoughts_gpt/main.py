@@ -135,21 +135,22 @@ if show_full_doc:
  
  
 if submit:
-    if not is_query_valid(query):
-        st.stop()
- 
-    # Output Columns
-    answer_col, sources_col = st.columns(2)
- 
-    llm = get_llm(model=model, openai_api_key=openai_api_key, temperature=0)
-    prompt = get_prompt(stuff_prompt)
-    result = query_folder(
-        folder_index=folder_index,
-        query=query,
-        llm=llm,
-        k=similar_docs_limit,
-        stuff_prompt=prompt
-    )
+    with st.spinner(f'LLM ({model})is answering, it may take a while. ⏳'):
+        if not is_query_valid(query):
+            st.stop()
+    
+        # Output Columns
+        answer_col, sources_col = st.columns(2)
+    
+        llm = get_llm(model=model, openai_api_key=openai_api_key, temperature=0)
+        prompt = get_prompt(stuff_prompt)
+        result = query_folder(
+            folder_index=folder_index,
+            query=query,
+            llm=llm,
+            k=similar_docs_limit,
+            stuff_prompt=prompt
+        )
 
     with answer_col:
         st.markdown("#### ✨ Answer")
