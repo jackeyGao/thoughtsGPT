@@ -1,9 +1,11 @@
-<h1 align="center">
-thoughtsGPT
-</h1>
+## 🍔 thoughtsGPT
+
+Knowledge document AI assistant, GPT 有所思。
+
+[🍨 demo](https://feishu.streamlit.app/)
 
 
-# 用到的 langchain 模块
+## used langchain module
 
 - core/parsing.py:from langchain.docstore.document import Document
 - core/parsing.py:from langchain.document_loaders.url import UnstructuredURLLoader
