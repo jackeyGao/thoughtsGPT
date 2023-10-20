@@ -3,6 +3,7 @@ from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from thoughts_gpt.core.prompts import STUFF_PROMPT
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
+from langchain.retrievers.multi_query import MultiQueryRetriever
 from pydantic import BaseModel
 from langchain.chat_models.base import BaseChatModel
 from thoughts_gpt.core.embedding import FolderIndex
@@ -50,7 +51,15 @@ def query_folder(
         document_prompt=DOCUMENT_PROMPT
     )
 
-    relevant_docs = folder_index.index.similarity_search(query, k=k)
+    retriever_from_llm = MultiQueryRetriever.from_llm(
+        retriever=folder_index.index.as_retriever(),
+        llm=llm
+    )
+
+    relevant_docs = retriever_from_llm.get_relevant_documents(query=query)
+    print(relevant_docs)
+
+    # relevant_docs = folder_index.index.similarity_search(query, k=k)
 
     summaries = chain._get_inputs(relevant_docs)
     prompt_length = chain.prompt_length(

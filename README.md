@@ -28,3 +28,4 @@ Knowledge document AI assistant, GPT 有所思。
 - core/embedding.py:from langchain.embeddings import OpenAIEmbeddings
 - core/embedding.py:from langchain.embeddings.base import Embeddings
 - core/embedding.py:from langchain.docstore.document import Document
+
