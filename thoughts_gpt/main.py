@@ -20,8 +20,8 @@ from thoughts_gpt.core.parsing import read_url
 from thoughts_gpt.core.chunking import chunk_file
 from thoughts_gpt.core.embedding import embed_files
 from thoughts_gpt.core.qa import query_folder
-from thoughts_gpt.core.summarizer import summarizer_folder
-from thoughts_gpt.core.summarizer import summarizer_with_summarizer
+# from thoughts_gpt.core.summarizer import summarizer_folder
+# from thoughts_gpt.core.summarizer import summarizer_with_summarizer
 from thoughts_gpt.core.qtype import query_qtype
 from thoughts_gpt.core.utils import get_llm
 from thoughts_gpt.core.prompts import get_prompt
@@ -110,7 +110,7 @@ try:
 except Exception as e:
     display_file_read_error(e, file_name=uploaded_file.name if uploaded_file else typed_url)
 
-chunked_file = chunk_file(file, chunk_size=600, chunk_overlap=0)
+chunked_file = chunk_file(file, chunk_size=300, chunk_overlap=0)
  
 if not is_file_valid(file):
     st.stop()
@@ -169,8 +169,9 @@ if submit:
 
         
         prompt = get_prompt(
-            qtype_result.qtype, stuff_prompt, 
-            suggested_questions_limit=suggested_questions_limit
+            qtype_result.qtype, 
+            question=query,
+            suggested_questions_limit=suggested_questions_limit,
         )
 
         result = query_folder(
@@ -214,7 +215,8 @@ if submit:
                     f":blue[source]: {source.metadata['source']}, " + 
                     f":blue[filename]: {source.metadata['file_name']}, " + 
                     f":blue[page]: {source.metadata['page']}, " + 
-                    f":blue[_id]: {source.metadata['_id']}"
+                    f":blue[_id]: {source.metadata['_id']}" + 
+                    f":blue[score]: {source.metadata['_score']}"
                 )
                 # st.markdown(source.page_content)
                 # st.markdown({source.metadata["source"]})

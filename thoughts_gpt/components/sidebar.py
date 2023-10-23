@@ -60,9 +60,9 @@ def sidebar():
             )
             similar_docs_limit = st.number_input(
                 "Similar Documents Limit",
-                value=10,
+                value=5,
                 min_value=1,
-                max_value=20,
+                max_value=12,
                 help="similar docs limit",  # noqa: E501
             )
 

@@ -47,7 +47,13 @@ def query_folder(
         AnswerWithSources: The answer and the source documents.
     """
 
-    relevant_docs = folder_index.index.similarity_search(query, k=k)
+    # similarity search documents with score
+    relevant_docs = []
+    with_socre_relevant_docs = folder_index.index.similarity_search_with_score(query, k=k)
+
+    for document, score in with_socre_relevant_docs:
+        document.metadata["_score"] = score
+        relevant_docs.append(document)
 
     if qtype == 'qa':
         chain = load_qa_with_sources_chain(
@@ -72,9 +78,10 @@ def query_folder(
             verbose=False,
             # map_prompt=map_prompt,
             # combine_prompt=get_summarization_prompt(suggested_questions_limit),
-            prompt=get_summarization_prompt(suggested_questions_limit),
+            prompt=get_summarization_prompt(query, suggested_questions_limit),
         )
 
+        relevant_docs.reverse()
         answer_res = chain.run(relevant_docs)
 
     variables = chain._get_inputs(relevant_docs)
@@ -148,6 +155,6 @@ def get_suggested_questions(answer: str) -> List[str]:
             else:
                 maybe_questions.append(line)
 
-    return [ q.strip() for q in maybe_questions if q ]
+    return [ q.strip() for q in maybe_questions if q.strip() ]
         
 

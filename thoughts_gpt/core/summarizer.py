@@ -6,7 +6,7 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from pydantic import BaseModel
 from langchain.chat_models.base import BaseChatModel
-from summarizer import Summarizer
+# from summarizer import Summarizer
 from thoughts_gpt.core.embedding import FolderIndex
 from thoughts_gpt.core.const import SUGGESTED_QUESTION_PREFIX
 from thoughts_gpt.core.qa import get_suggested_questions
@@ -60,20 +60,20 @@ def summarizer_folder(
         suggested_questions=suggested_questions
     )
 
-def summarizer_with_summarizer(
-    folder_index: FolderIndex,
-    llm: BaseChatModel,
-    suggested_questions_limit: int = 5,
-) -> SummarizerWithSources:
+# def summarizer_with_summarizer(
+#     folder_index: FolderIndex,
+#     llm: BaseChatModel,
+#     suggested_questions_limit: int = 5,
+# ) -> SummarizerWithSources:
     
-    model = Summarizer()
-    db_result = folder_index.index._collection.get()
+#     model = Summarizer()
+#     db_result = folder_index.index._collection.get()
 
-    full_text = "".join(doc for doc in db_result["documents"])
+#     full_text = "".join(doc for doc in db_result["documents"])
 
-    answer = model(full_text, num_sentences=3)
+#     answer = model(full_text, num_sentences=3)
 
-    return SummarizerWithSources(
-        answer=answer,
-        suggested_questions=[]
-    )
+#     return SummarizerWithSources(
+#         answer=answer,
+#         suggested_questions=[]
+#     )
