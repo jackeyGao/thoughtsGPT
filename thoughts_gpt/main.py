@@ -21,6 +21,7 @@ from thoughts_gpt.core.chunking import chunk_file
 from thoughts_gpt.core.embedding import embed_files
 from thoughts_gpt.core.qa import query_folder
 from thoughts_gpt.core.summarizer import summarizer_folder
+from thoughts_gpt.core.summarizer import summarizer_with_summarizer
 from thoughts_gpt.core.qtype import query_qtype
 from thoughts_gpt.core.utils import get_llm
 from thoughts_gpt.core.prompts import get_prompt
@@ -42,7 +43,7 @@ sidebar()
 
 st.markdown("""
 <style>
-.st-ct code.language-python {
+code.language-python {
     word-break: break-all;
     overflow: hidden;
     overflow-x: hidden;
@@ -54,7 +55,7 @@ st.markdown("""
 openai_api_key = st.session_state.get("OPENAI_API_KEY")
 stuff_prompt = st.session_state.get("STUFF_PROMPT")
 show_full_doc = st.session_state.get("SHOW_FULL_DOC", False)
-similar_docs_limit = st.session_state.get("SIMILAR_DOCS_LIMIT", 5)
+similar_docs_limit = st.session_state.get("SIMILAR_DOCS_LIMIT", 10)
 temperature = st.session_state.get("TEMPERRATURE", 0.1)
 suggested_questions_limit = st.session_state.get("SUGGESTED_QUESTIONS_LIMIT", 5)
 
@@ -109,7 +110,7 @@ try:
 except Exception as e:
     display_file_read_error(e, file_name=uploaded_file.name if uploaded_file else typed_url)
 
-chunked_file = chunk_file(file, chunk_size=300, chunk_overlap=0)
+chunked_file = chunk_file(file, chunk_size=600, chunk_overlap=0)
  
 if not is_file_valid(file):
     st.stop()
@@ -166,21 +167,21 @@ if submit:
 
         qtype_result = query_qtype(query, llm=llm)
 
-        if qtype_result.qtype == 'summarization':
-            result = summarizer_folder(
-                folder_index=folder_index, llm=llm,
-                suggested_questions_limit=suggested_questions_limit
-            )
-        else:
-            prompt = get_prompt(stuff_prompt)
-            result = query_folder(
-                folder_index=folder_index,
-                query=query,
-                llm=llm,
-                k=similar_docs_limit,
-                stuff_prompt=prompt,
-                suggested_questions_limit=suggested_questions_limit
-            )
+        
+        prompt = get_prompt(
+            qtype_result.qtype, stuff_prompt, 
+            suggested_questions_limit=suggested_questions_limit
+        )
+
+        result = query_folder(
+            qtype=qtype_result.qtype,
+            folder_index=folder_index,
+            query=query,
+            llm=llm,
+            k=similar_docs_limit,
+            stuff_prompt=prompt,
+            suggested_questions_limit=suggested_questions_limit
+        )
 
     with answer_col:
         st.markdown("#### ✨ Answer")
@@ -191,9 +192,6 @@ if submit:
             st.info('- ' + '\n- '.join(result.suggested_questions))
         else:
             st.warning("No suggested questions")
- 
-    if qtype_result.qtype == 'summarization':
-        sys.exit(0)
         
     with sources_col:
         st.markdown("#### 🍞 Context")
@@ -223,11 +221,11 @@ if submit:
                 # st.markdown("---")
 
         with source_tabs[-2]:
-            st.caption(f":blue[Token]: {result.prompt_length}")
-            prompt_content = prompt.format(
+            st.caption(f":blue[qtype]: {qtype_result.qtype}, :blue[tokens]: {result.prompt_length}")
+            prompt_content = prompt.template.format(
                 question=query, 
                 suggested_questions_limit=suggested_questions_limit,
-                summaries=result.summaries
+                **result.variables
             )
             st.code(prompt_content, language="python")
         

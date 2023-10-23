@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Dict
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
+from langchain.chains.summarize import load_summarize_chain
 from thoughts_gpt.core.prompts import STUFF_PROMPT
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
@@ -10,6 +11,7 @@ from thoughts_gpt.core.embedding import FolderIndex
 from thoughts_gpt.core.prompts import DOCUMENT_PROMPT
 from thoughts_gpt.core.const import SUGGESTED_QUESTION_PREFIX
 from thoughts_gpt.core.const import DOCUMENT_SUMMARIES_SOURCE
+from thoughts_gpt.core.prompts import get_summarization_prompt
 
 
 class AnswerWithSources(BaseModel):
@@ -17,12 +19,13 @@ class AnswerWithSources(BaseModel):
     sources: List[Document]
     match_sources: List[Document]
     suggested_questions: List[str]
-    summaries: str
+    variables: Dict
     prompt_length: int
     original_anwser: str
 
 
 def query_folder(
+    qtype: str,
     query: str,
     folder_index: FolderIndex,
     llm: BaseChatModel,
@@ -44,57 +47,61 @@ def query_folder(
         AnswerWithSources: The answer and the source documents.
     """
 
-    chain = load_qa_with_sources_chain(
-        llm=llm,
-        chain_type="stuff",
-        prompt=stuff_prompt,
-        document_prompt=DOCUMENT_PROMPT
-    )
-
-    retriever_from_llm = MultiQueryRetriever.from_llm(
-        retriever=folder_index.index.as_retriever(),
-        llm=llm
-    )
-
     relevant_docs = folder_index.index.similarity_search(query, k=k)
 
-    summaries = chain._get_inputs(relevant_docs)
+    if qtype == 'qa':
+        chain = load_qa_with_sources_chain(
+            llm=llm,
+            chain_type="stuff",
+            prompt=stuff_prompt,
+            document_prompt=DOCUMENT_PROMPT
+        )
+
+        result = chain(
+            {
+                "input_documents": relevant_docs, 
+                "question": query,
+                "suggested_questions_limit": suggested_questions_limit,
+            }, return_only_outputs=True
+        )
+        answer_res = result["output_text"]
+    else:
+        chain = load_summarize_chain(
+            llm=llm,
+            chain_type="stuff",
+            verbose=False,
+            # map_prompt=map_prompt,
+            # combine_prompt=get_summarization_prompt(suggested_questions_limit),
+            prompt=get_summarization_prompt(suggested_questions_limit),
+        )
+
+        answer_res = chain.run(relevant_docs)
+
+    variables = chain._get_inputs(relevant_docs)
     prompt_length = chain.prompt_length(
         relevant_docs, question=query, 
         suggested_questions_limit=suggested_questions_limit
     )
 
-    result = chain(
-        {
-            "input_documents": relevant_docs, 
-            "question": query,
-            "suggested_questions_limit": suggested_questions_limit,
-        }, return_only_outputs=True
-    )
-
-    sources = relevant_docs
-
-    match_sources = get_sources(result["output_text"], folder_index)
+    match_sources = get_sources(answer_res, folder_index)
 
     # convert
     _source_map = { s.metadata["source"]: s for s in match_sources }
-    for source in sources:
+    for source in relevant_docs:
         if source.metadata["source"] in _source_map:
             source.metadata["source"] = f"🔥 {source.metadata['source']}"
 
-    # answer = result["output_text"].split("SOURCES: ")[0]
-
-    suggested_questions = get_suggested_questions(result["output_text"])
-    answer = result["output_text"].split(f"{SUGGESTED_QUESTION_PREFIX}:")[0]
+    suggested_questions = get_suggested_questions(answer_res)
+    answer = answer_res.split(f"{SUGGESTED_QUESTION_PREFIX}:")[0]
 
     return AnswerWithSources(
         answer=answer, 
-        sources=sources, 
+        sources=relevant_docs, 
         match_sources=match_sources, 
         suggested_questions=suggested_questions,
-        summaries=summaries["summaries"],
+        variables=variables,
         prompt_length=prompt_length,
-        original_anwser=result["output_text"],
+        original_anwser=answer_res,
     )
 
 def get_sources_key(line: str) -> List[str]:

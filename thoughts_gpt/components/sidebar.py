@@ -30,17 +30,18 @@ def sidebar():
 
         st.session_state["OPENAI_API_KEY"] = api_key_input
 
-        stuff_prompt = st.text_area(
-            "Stuff Prompt",
-            placeholder="stuff prompt",
-            help="https://smith.langchain.com/hub/rlm/rag-prompt",  # noqa: E501
-            value=st.session_state.get("STUFF_PROMPT", "")
-            or default_template,
-        )
+        # stuff_prompt = st.text_area(
+        #     "Stuff Prompt",
+        #     placeholder="stuff prompt",
+        #     help="https://smith.langchain.com/hub/rlm/rag-prompt",  # noqa: E501
+        #     value=st.session_state.get("STUFF_PROMPT", "")
+        #     or default_template,
+        # )
 
-        st.session_state["STUFF_PROMPT"] = stuff_prompt
+        # st.session_state["STUFF_PROMPT"] = stuff_prompt
 
-        with st.expander("Advanced Options"):
+        with st.expander("Advanced Options", True):
+            st.info("You don’t need to modify this. If you know the meaning of each field, you can modify it.", icon="📍")
             show_full_doc = st.checkbox('Show parsed contents of the document')
             temperature = st.number_input(
                 label="LLM Temperature",
@@ -59,9 +60,9 @@ def sidebar():
             )
             similar_docs_limit = st.number_input(
                 "Similar Documents Limit",
-                value=5,
+                value=10,
                 min_value=1,
-                max_value=12,
+                max_value=20,
                 help="similar docs limit",  # noqa: E501
             )
 
@@ -72,13 +73,13 @@ def sidebar():
         st.session_state["SIMILAR_DOCS_LIMIT"] = similar_docs_limit
 
 
-        st.markdown(
-            "## Prompt examples\n"
-            "1. Copy the example prompt below 🔥\n"  # noqa: E501
-            "2. Paste text into stuff prompt input \n"
-        )
+        # st.markdown(
+        #     "## Prompt examples\n"
+        #     "1. Copy the example prompt below 🔥\n"  # noqa: E501
+        #     "2. Paste text into stuff prompt input \n"
+        # )
 
-        example()
+        # example()
 
         st.caption(f":blue[version]: {__version__}")
 
