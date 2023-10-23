@@ -1,5 +1,5 @@
 import streamlit as st
-import os
+import os, sys
 
 # import extra_streamlit_components as stx
 
@@ -20,6 +20,8 @@ from thoughts_gpt.core.parsing import read_url
 from thoughts_gpt.core.chunking import chunk_file
 from thoughts_gpt.core.embedding import embed_files
 from thoughts_gpt.core.qa import query_folder
+from thoughts_gpt.core.summarizer import summarizer_folder
+from thoughts_gpt.core.qtype import query_qtype
 from thoughts_gpt.core.utils import get_llm
 from thoughts_gpt.core.prompts import get_prompt
 from thoughts_gpt.core.const import EMBEDDING, VECTOR_STORE, MODEL_LIST
@@ -126,6 +128,15 @@ with st.spinner("Indexing document... This may take a while⏳"):
         collection_name=file.id,
     )
 
+    llm = get_llm(
+        model=model, 
+        openai_api_key=openai_api_key, 
+        temperature=temperature
+    )
+
+    # result = summarizer_folder(folder_index, llm)
+    # print(result)
+
 
 with st.form(key="qa_form"):
     query = st.text_area("Ask a question about the document")
@@ -140,6 +151,7 @@ if show_full_doc:
  
 if submit:
     with st.spinner(f'LLM({model}) is answering, it may take a while. ⏳'):
+
         if not is_query_valid(query):
             st.stop()
     
@@ -151,16 +163,24 @@ if submit:
             openai_api_key=openai_api_key, 
             temperature=temperature
         )
-        
-        prompt = get_prompt(stuff_prompt)
-        result = query_folder(
-            folder_index=folder_index,
-            query=query,
-            llm=llm,
-            k=similar_docs_limit,
-            stuff_prompt=prompt,
-            suggested_questions_limit=suggested_questions_limit
-        )
+
+        qtype_result = query_qtype(query, llm=llm)
+
+        if qtype_result.qtype == 'summarization':
+            result = summarizer_folder(
+                folder_index=folder_index, llm=llm,
+                suggested_questions_limit=suggested_questions_limit
+            )
+        else:
+            prompt = get_prompt(stuff_prompt)
+            result = query_folder(
+                folder_index=folder_index,
+                query=query,
+                llm=llm,
+                k=similar_docs_limit,
+                stuff_prompt=prompt,
+                suggested_questions_limit=suggested_questions_limit
+            )
 
     with answer_col:
         st.markdown("#### ✨ Answer")
@@ -172,6 +192,9 @@ if submit:
         else:
             st.warning("No suggested questions")
  
+    if qtype_result.qtype == 'summarization':
+        sys.exit(0)
+        
     with sources_col:
         st.markdown("#### 🍞 Context")
         

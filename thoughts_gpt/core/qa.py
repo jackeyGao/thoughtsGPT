@@ -56,10 +56,7 @@ def query_folder(
         llm=llm
     )
 
-    relevant_docs = retriever_from_llm.get_relevant_documents(query=query)
-    print(relevant_docs)
-
-    # relevant_docs = folder_index.index.similarity_search(query, k=k)
+    relevant_docs = folder_index.index.similarity_search(query, k=k)
 
     summaries = chain._get_inputs(relevant_docs)
     prompt_length = chain.prompt_length(

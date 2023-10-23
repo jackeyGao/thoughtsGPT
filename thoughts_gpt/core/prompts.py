@@ -35,6 +35,22 @@ default_template = """使用提供的文档摘录（排名不分先后）作为�
 
 """
 
+qtype_prompt = """你只能回答两个词qa和summarization, 你需要分析问题推理意图，如果是问题是寻求答案请输出“qa”，如果问题是希望总结下内容请输出"summarization"？ 你永远输出这两个单词的一个， 不要做任何内容输出。
+
+比如
+========
+问题: 文中的作者结婚了嘛
+输出: qa
+
+问题: 帮我总结下这篇内容
+输出: summarization
+
+========
+问题: {question}
+输出: 
+
+"""
+
 DOCUMENT_PROMPT = PromptTemplate(
     template= DOCUMENT_SUMMARIES_CONTENT \
     + ": {page_content}\n" \
@@ -52,6 +68,10 @@ STUFF_PROMPT = PromptTemplate(
     input_variables=["summaries", "question", "suggested_questions_limit"]
 )
 
+QTYPE_PROMPT = PromptTemplate(
+    template=qtype_prompt, 
+    input_variables=["question"]
+)
 
 def get_prompt(template: str=default_template) -> PromptTemplate:
     return PromptTemplate(
